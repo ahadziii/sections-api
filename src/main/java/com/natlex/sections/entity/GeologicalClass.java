@@ -16,6 +16,7 @@ import org.antlr.v4.runtime.misc.NotNull;
 @Table(name = "geologicalClass")
 public class GeologicalClass {
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
