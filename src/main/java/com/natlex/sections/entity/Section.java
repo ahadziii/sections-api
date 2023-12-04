@@ -23,8 +23,7 @@ public class Section {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "name")
-    @NotNull
+    @Column(name = "name", nullable = false)
     private String name;
 
     @OneToMany(mappedBy = "section")
