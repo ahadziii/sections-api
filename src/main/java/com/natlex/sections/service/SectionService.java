@@ -6,6 +6,7 @@ import com.natlex.sections.repository.GeologicalClassRepository;
 import com.natlex.sections.repository.SectionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,14 +18,19 @@ public class SectionService {
     private final SectionRepository sectionRepository;
     private final GeologicalClassRepository geologicalClassRepository;
 
-    public List<Section> getAllSections(){
+    public List<Section> getAllSections() {
         return sectionRepository.findAll();
     }
 
-    public List<Section> getSectionsByCode(String code){
+    public List<Section> getSectionsByCode(String code) {
         return geologicalClassRepository.findByCode(code).stream()
                 .map(GeologicalClass::getSection)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void batchInsert(List<Section> sections) {
+        sectionRepository.saveAll(sections);
     }
 
 }

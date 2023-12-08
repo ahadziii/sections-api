@@ -2,11 +2,7 @@ package com.natlex.sections.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.antlr.v4.runtime.misc.NotNull;
+import lombok.*;
 
 import java.util.List;
 
@@ -15,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Builder
 @Table(name = "section")
 public class Section {
     @Id
@@ -26,6 +23,6 @@ public class Section {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "section")
+    @OneToMany(mappedBy = "section", cascade = CascadeType.ALL)
     List<GeologicalClass> geologicalClasses;
 }
