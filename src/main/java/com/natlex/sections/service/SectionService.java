@@ -1,5 +1,6 @@
 package com.natlex.sections.service;
 
+import com.natlex.sections.dto.SectionDTO;
 import com.natlex.sections.entity.GeologicalClass;
 import com.natlex.sections.entity.Section;
 import com.natlex.sections.repository.GeologicalClassRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,18 +21,15 @@ public class SectionService {
     private final GeologicalClassRepository geologicalClassRepository;
     private final ModelMapper modelMapper;
 
-    public List<Section> getAllSections() {
-        return sectionRepository.findAll();
-
-//        return sections.stream().map((element) -> modelMapper.map(element, SectionDto.class)).toList();
+    public List<SectionDTO> getAllSections() {
+        return sectionRepository.findAll().stream()
+                .map((element) -> modelMapper.map(element, SectionDTO.class)).collect(Collectors.toList());
     }
 
-    public List<Section> getSectionsByCode(String code) {
+    public List<SectionDTO> getSectionsByCode(String code) {
         return geologicalClassRepository.findByCode(code).stream()
                 .map(GeologicalClass::getSection)
-                .toList();
-
-//        return sections.stream().map((element) -> modelMapper.map(element, SectionDto.class)).collect(Collectors.toList());
+                .map((element) -> modelMapper.map(element, SectionDTO.class)).collect(Collectors.toList());
     }
 
     @Transactional

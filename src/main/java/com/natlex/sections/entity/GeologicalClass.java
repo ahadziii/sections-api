@@ -2,19 +2,16 @@ package com.natlex.sections.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.antlr.v4.runtime.misc.NotNull;
 
 
 @Entity
 @Table(name = "geologicalClass")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class GeologicalClass {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

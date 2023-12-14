@@ -1,6 +1,6 @@
 package com.natlex.sections.service;
 
-import com.natlex.sections.entity.Section;
+import com.natlex.sections.dto.SectionDTO;
 import com.natlex.sections.repository.SectionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +30,11 @@ public class ExcelExportService {
     @Async
     public void exportData(String uuid) throws IOException {
 
-        var sections = sectionRepository.findAll();
+        var sections = sectionRepository.findAll()
+                .stream()
+                .map((element) -> modelMapper.map(element, SectionDTO.class))
+                .toList();
+
         var tempDirectory = System.getProperty("java.io.tmpdir");
         var filePath = Paths.get(tempDirectory, "exportedFile_" + uuid + ".xlsx");
 
@@ -51,10 +55,10 @@ public class ExcelExportService {
 
                 var geologicalClasses = section.getGeologicalClasses();
                 for (int i = 0; i < geologicalClasses.size(); i++) {
-                    var geologicalClassDto = geologicalClasses.get(i);
+                    var geologicalClass = geologicalClasses.get(i);
 
-                    row.createCell(2 * i + 1).setCellValue(geologicalClassDto.getName());
-                    row.createCell(2 * i + 2).setCellValue(geologicalClassDto.getCode());
+                    row.createCell(2 * i + 1).setCellValue(geologicalClass.getName());
+                    row.createCell(2 * i + 2).setCellValue(geologicalClass.getCode());
                 }
             }
 
@@ -81,7 +85,7 @@ public class ExcelExportService {
     }
 
 
-    private Integer getMaxGeologicalClassCount(List<Section> sections) {
+    private Integer getMaxGeologicalClassCount(List<SectionDTO> sections) {
         return sections.stream()
                 .mapToInt(section -> section.getGeologicalClasses().size())
                 .max()

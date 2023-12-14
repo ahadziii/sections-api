@@ -3,7 +3,6 @@ package com.natlex.sections.service;
 import com.natlex.sections.entity.AsyncJobStatus;
 import com.natlex.sections.repository.AsyncJobStatusRepository;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -14,7 +13,6 @@ import java.util.Optional;
 public class AsyncJobStatusService {
 
     private final AsyncJobStatusRepository asyncJobStatusRepository;
-    private final ModelMapper modelMapper;
 
     public void saveAsyncJobStatus(AsyncJobStatus asyncJobStatus) {
         asyncJobStatusRepository.save(asyncJobStatus);
