@@ -4,13 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+
+import java.util.List;
+
 @Entity
 @Data
-@ToString
-@Table(name = "asyncJobStatus")
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name = "asyncJobStatus")
 public class AsyncJobStatus {
     @Id
     @JsonIgnore
@@ -18,10 +20,10 @@ public class AsyncJobStatus {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "uuid", nullable = false)
+    @Column(name = "uuid", nullable = false, unique = true)
     private String uuid;
 
     @Column(name = "jobStatus", nullable = false)
     private String jobStatus;
-
 }
+

@@ -2,19 +2,21 @@ package com.natlex.sections.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.antlr.v4.runtime.misc.NotNull;
 
+
 @Entity
+@Table(name = "geologicalClass")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Builder
-@Table(name = "geologicalClass")
 public class GeologicalClass {
     @Id
-    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
@@ -33,3 +35,4 @@ public class GeologicalClass {
     private Section section;
 
 }
+

@@ -1,53 +1,63 @@
 package com.natlex.sections.service;
 
 import com.natlex.sections.entity.AsyncJobStatus;
-import com.natlex.sections.entity.Section;
-import com.natlex.sections.repository.AsyncJobStatusRepository;
-import jakarta.servlet.ServletOutputStream;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AsyncJobService {
 
     private final ExcelImportService excelImportService;
     private final ExcelExportService excelExportService;
-    private final AsyncJobStatusRepository asyncJobStatusRepository;
+    private final AsyncJobStatusService asyncJobStatusService;
 
-    public void uploadFile(MultipartFile file) throws IOException {
-        excelImportService.readExcelData(file);
+
+    @Async
+    public CompletableFuture<String> uploadFile(MultipartFile file) {
+        String uuid = generateUUID();
+
+        var jobStatus = AsyncJobStatus.builder()
+                .jobStatus("IN PROGRESS")
+                .uuid(uuid)
+                .build();
+
+        asyncJobStatusService.saveAsyncJobStatus(jobStatus);
+        excelImportService.readExcelData(file, uuid);
+
+        return CompletableFuture.completedFuture(uuid);
     }
 
-    public String downloadFile(ServletOutputStream outputStream) throws IOException {
+    @Async
+    public CompletableFuture<String> initiateExport() {
 
-        //TODO: update the status of the job when it is done using async
-//        if (optionalAsyncJobStatus.isPresent()) {
-//            AsyncJobStatus existingAsyncJobStatus = optionalAsyncJobStatus.get();
-//            existingAsyncJobStatus.setJobStatus("DONE");
-//            asyncJobStatusRepository.save(existingAsyncJobStatus);
+        var uuid = generateUUID();
+
+        var jobStatus = AsyncJobStatus.builder()
+                .jobStatus("IN PROGRESS")
+                .uuid(uuid)
+                .build();
 
         try {
-            excelExportService.writeExcelData(outputStream);
-
-            String uuid = generateUUID();
-
-            var asyncJobStatus = AsyncJobStatus.builder()
-                    .uuid(uuid)
-                    .jobStatus("IN PROGRESS")
-                    .build();
-
-            asyncJobStatusRepository.save(asyncJobStatus);
-            return uuid;
+            asyncJobStatusService.saveAsyncJobStatus(jobStatus);
+            excelExportService.exportData(uuid);
         } catch (Exception e) {
-            return "Error initiating download: " + e.getMessage();
+            asyncJobStatusService.updateJobStatus(uuid, "ERROR");
+            log.error("An error occurred: {}", e.getMessage());
         }
+
+        return CompletableFuture.completedFuture(uuid);
+
     }
+
+
 
     private String generateUUID() {
         return UUID.randomUUID().toString();

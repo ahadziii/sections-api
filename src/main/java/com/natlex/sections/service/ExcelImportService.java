@@ -3,33 +3,39 @@ package com.natlex.sections.service;
 import com.natlex.sections.entity.GeologicalClass;
 import com.natlex.sections.entity.Section;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.modelmapper.ModelMapper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ExcelImportService {
+    private final ModelMapper modelMapper;
 
     private final SectionService sectionService;
+    private final AsyncJobStatusService asyncJobStatusService;
+
 
     @Async
-    public void readExcelData(MultipartFile file) {
-
+    public void readExcelData(MultipartFile file, String uuid) {
 
         try (InputStream inputStream = file.getInputStream(); XSSFWorkbook workbook = new XSSFWorkbook(inputStream);) {
-            var sheet = workbook.getSheetAt(0);
+
+            Sheet sheet = workbook.getSheetAt(0);
             var sections = new ArrayList<Section>();
 
-            for (var row : sheet) {
+            for (Row row : sheet) {
                 if (row.getRowNum() == 0) {
-
                     continue;
                 }
 
@@ -37,6 +43,7 @@ public class ExcelImportService {
                 if (Objects.equals(sectionName, "")) {
                     break;
                 }
+
                 var geologicalClasses = new ArrayList<GeologicalClass>();
 
                 for (int i = 1; i < row.getPhysicalNumberOfCells(); i += 2) {
@@ -47,6 +54,7 @@ public class ExcelImportService {
                     geologicalClass.setName(className);
                     geologicalClass.setCode(classCode);
                     geologicalClasses.add(geologicalClass);
+
                 }
 
                 var section = new Section();
@@ -59,9 +67,14 @@ public class ExcelImportService {
                 sections.add(section);
             }
 
+            // var test = sections.stream().map((element) -> modelMapper.map(element, Section.class)).toList();
+
             sectionService.batchInsert(sections);
+            asyncJobStatusService.updateJobStatus(uuid, "DONE");
+
         } catch (Exception e) {
-            e.printStackTrace();
+            asyncJobStatusService.updateJobStatus(uuid, "ERROR");
+            log.error("An error occurred: {}", e.getMessage());
         }
     }
 

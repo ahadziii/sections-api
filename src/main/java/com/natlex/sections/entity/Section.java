@@ -2,17 +2,19 @@ package com.natlex.sections.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Entity
+@Table(name = "section")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Builder
-@Table(name = "section")
 public class Section {
     @Id
     @JsonIgnore
@@ -25,4 +27,7 @@ public class Section {
 
     @OneToMany(mappedBy = "section", cascade = CascadeType.ALL)
     List<GeologicalClass> geologicalClasses;
+
 }
+
+
